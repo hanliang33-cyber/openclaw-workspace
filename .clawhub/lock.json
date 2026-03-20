@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "skills": {
+    "summarize": {
+      "version": "1.0.0",
+      "installedAt": 1773838142604
+    },
+    "proactive-agent-lite": {
+      "version": "1.0.0",
+      "installedAt": 1773838261231
+    },
+    "gog": {
+      "version": "1.0.0",
+      "installedAt": 1773838383162
+    },
+    "agent-browser-clawdbot": {
+      "version": "0.1.0",
+      "installedAt": 1773838520959
+    },
+    "github-ops": {
+      "version": "1.0.0",
+      "installedAt": 1773838742524
+    },
+    "github-cli": {
+      "version": "1.0.0",
+      "installedAt": 1773838742656
+    },
+    "openclaw-skill-vetter": {
+      "version": "1.0.0",
+      "installedAt": 1773838743835
+    },
+    "openclaw-tavily-search": {
+      "version": "0.1.0",
+      "installedAt": 1773838803302
+    },
+    "skill-vetter": {
+      "version": "1.0.0",
+      "installedAt": 1773838863211
+    },
+    "self-improving-agent": {
+      "version": "3.0.5",
+      "installedAt": 1773839104350
+    },
+    "feishu-bitable-creator": {
+      "version": "1.0.2",
+      "installedAt": 1773840001894
+    },
+    "crm": {
+      "version": "1.0.0",
+      "installedAt": 1773840302287
+    },
+    "sales-manager": {
+      "version": "1.0.0",
+      "installedAt": 1773841143179
+    },
+    "sales-pipeline-tracker": {
+      "version": "1.0.0",
+      "installedAt": 1773841322575
+    },
+    "objection-handler": {
+      "version": "1.0.0",
+      "installedAt": 1773841382470
+    },
+    "competitive-intelligence-market-research": {
+      "version": "1.0.0",
+      "installedAt": 1773841443282
+    },
+    "afrexai-sales-playbook": {
+      "version": "1.0.0",
+      "installedAt": 1773841502686
+    },
+    "excel-parser-skill": {
+      "version": "2.0.0",
+      "installedAt": 1773843725163
+    },
+    "ocr-local": {
+      "version": "1.0.0",
+      "installedAt": 1773880267502
+    }
+  }
+}
