@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "daily_rss_push",
+      "agentId": "main",
+      "name": "daily_rss_push",
+      "enabled": true,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 8 * * *",
+        "tz": "Asia/Shanghai"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "执行RSS新闻推送任务：\n1. 从4个RSS源（36氪、IT之家、爱范儿、InfoQ）抓取各10条新闻\n2. 每条新闻格式：标题 + 原文链接\n3. 完成后使用curl发送消息到飞书群机器人webhook：https://open.feishu.cn/open-apis/bot/v2/hook/cd7284df-9c27-4d9a-a440-804df3b851ae\n4. 消息格式为JSON，content字段为消息文本"
+      },
+      "delivery": {
+        "mode": "announce"
+      },
+      "state": {
+        "nextRunAtMs": 1774053000000,
+        "lastRunAtMs": 1773966600045,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 155827,
+        "lastDelivered": true,
+        "lastDeliveryStatus": "delivered",
+        "consecutiveErrors": 0
+      },
+      "updatedAtMs": 1773966755872
+    },
+    {
+      "id": "daily_customer_intel",
+      "agentId": "main",
+      "name": "daily_customer_intel",
+      "enabled": true,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * *",
+        "tz": "Asia/Shanghai"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "执行重点客户招投标商机推送任务：\n1. 读取配置文件 /home/node/.openclaw/config.json\n2. 使用飞书API获取客户清单表格的关键词\n3. 读取爬虫历史数据 /mnt/sata1-4/docker/tender-spider/data/history.json\n4. 匹配重点客户商机（使用客户关键词过滤）\n5. 将匹配到的商机写入商机管理表格和推送记录表格\n6. 发送飞书消息给用户 ou_abc84d67f3a4917fe11eef3f3b824e38"
+      },
+      "delivery": {
+        "mode": "announce"
+      },
+      "state": {
+        "nextRunAtMs": 1774054800000,
+        "lastRunAtMs": 1773968400025,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 538227,
+        "lastDelivered": true,
+        "lastDeliveryStatus": "delivered",
+        "consecutiveErrors": 0
+      },
+      "updatedAtMs": 1773968938252
+    }
+  ]
+}

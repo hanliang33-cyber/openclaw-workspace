@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.13",
+    "lastTouchedAt": "2026-03-20T10:54:50.018Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-18T11:10:17.792Z",
+    "lastRunVersion": "2026.3.8",
+    "lastRunCommand": "configure",
+    "lastRunMode": "local"
+  },
+  "auth": {
+    "profiles": {
+      "minimax-cn:default": {
+        "provider": "minimax-cn",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "minimax-cn": {
+        "baseUrl": "https://api.minimaxi.com/anthropic",
+        "api": "anthropic-messages",
+        "authHeader": true,
+        "models": [
+          {
+            "id": "MiniMax-M2.7",
+            "name": "MiniMax M2.7",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0.3,
+              "output": 1.2,
+              "cacheRead": 0.03,
+              "cacheWrite": 0.12
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "nvidia": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 Vision",
+            "input": [
+              "text",
+              "image"
+            ],
+            "contextWindow": 131072,
+            "maxTokens": 4096
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "minimax-cn/MiniMax-M2.7"
+      },
+      "imageModel": {
+        "primary": "nvidia/moonshotai/kimi-k2.5",
+        "fallbacks": []
+      },
+      "models": {
+        "minimax-cn/MiniMax-M2.5": {
+          "alias": "Minimax"
+        },
+        "nvidia/moonshotai/kimi-k2.5": {}
+      },
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "tools": {},
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "feishu": {
+      "allowFrom": [
+        "*"
+      ],
+      "appId": "cli_a906141787b89cc1",
+      "appSecret": "[REDACTED_FEISHU_SECRET]",
+      "connectionMode": "websocket",
+      "dmPolicy": "open",
+      "domain": "feishu",
+      "enabled": true,
+      "groupPolicy": "open",
+      "requireMention": false
+    }
+  },
+  "gateway": {
+    "port": 13817,
+    "mode": "local",
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": [
+        "*"
+      ],
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "[REDACTED_GATEWAY_TOKEN]"
+    },
+    "trustedProxies": [
+      "*"
+    ]
+  },
+  "plugins": {
+    "load": {
+      "paths": [
+        "/app/extensions/feishu"
+      ]
+    },
+    "entries": {
+      "feishu": {
+        "enabled": true
+      },
+      "lossless-claw": {
+        "enabled": true
+      }
+    },
+    "installs": {
+      "lossless-claw": {
+        "source": "path",
+        "sourcePath": "/home/node/.openclaw/workspace/lossless-claw",
+        "installPath": "/home/node/.openclaw/extensions/lossless-claw",
+        "version": "0.4.0",
+        "installedAt": "2026-03-18T22:15:29.345Z"
+      }
+    }
+  }
+}
