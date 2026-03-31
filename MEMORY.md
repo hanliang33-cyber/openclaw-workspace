@@ -29,7 +29,7 @@
 - `business.md` - 业务管理
 
 ## 配置文件
-- 位置：/home/node/.openclaw/config.json
+- 位置：/home/node/.openclaw/workspace/claw33pin/config.json
 
 ## 系统限制
 - 容器内无法安装 npm 包
