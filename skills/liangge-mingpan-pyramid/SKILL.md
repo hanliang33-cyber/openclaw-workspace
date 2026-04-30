@@ -1,6 +1,15 @@
 ---
 name: liangge-mingpan-pyramid
-description: 亮哥专属盲派命理框架
+description: |
+  亮哥专属盲派命理框架。基于段建业理法体系+杨清娟十神暗引，构建完整的八字分析流程。
+  不看旺衰、不寻用神、不讲格局——只看做功效率。
+  
+  触发词：「分析八字」「看看命」「算一卦」「盲派」「看大运」「流年」「2026年运势」「婚姻」「事业」「伤病」「牢狱」「亥未分工」「丑未冲」「婚姻分析」「事业分析」
+  触发词(EN)：「analyze bazi」「fate reading」「mangpai」「career reading」「marrriage fate」
+  
+  适用场景：八字排定 → 宾主分析 → 做功效率 → 婚姻/事业/伤病/牢狱专项判断 → 应期定位
+  
+  限制：不看旺衰喜忌，只看做功效率；命理是概率框架不是判决书；敏感判断须用户确认后输出
 metadata:
   openclaw:
     emoji: 🔮
