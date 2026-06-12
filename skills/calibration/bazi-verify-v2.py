@@ -59,28 +59,6 @@ exec(open('/home/node/.openclaw/workspace/skills/calibration/bazi-verify.py').re
 LIANG_GE_START_AGE = 4  # 亮哥专用起运年龄（4岁）
 
 
-# ==== 亮哥专用真大运序列（专家 Q-2 裁决） ====
-# 月柱癸丑，跪年男命阳，顺排，每 10 年一步
-# 4岁起运，每逢丁/壬结尾年份换运
-LIANG_GE_DAYUN_TRUE = [
-    ('甲寅', 1987, 1996, '4-13岁'),
-    ('乙卯', 1997, 2006, '14-23岁'),
-    ('丙辰', 2007, 2016, '24-33岁'),
-    ('丁巳', 2017, 2026, '34-43岁'),  # 2026 交运期
-    ('戊午', 2027, 2036, '44-53岁'),  # 2027 换入
-    ('己未', 2037, 2046, '54-63岁'),
-]
-
-# ==== 亮哥起运精确时间（专家 Q-3 裁决） ====
-# 阳年男命顺排，距立春 12 天，12/3=4 年一天不差
-# 起运绝对时间：1983-1-23 + 4 年 = 1987-1-23 13:40（生时同步）
-LIANG_GE_START_DATETIME = '1987-01-23 13:40:00'
-# 换运年份（完整列表）
-LIANG_GE_DAYUN_CHANGYUN_YEARS = [1987, 1997, 2007, 2017, 2027, 2037]
-# 换运窗口（每年 1 月 23 日前后，亮哥专是生日同步）
-LIANG_GE_DAYUN_CHANGYUN_WINDOW = '每年公历 01 月 23 日前后'
-
-
 def calc_jiaoyun_precise(current_year: int, dayun_table: List[Tuple[str, int, int, str]] = None) -> Dict:
     """
     精确交运期判定（按专家 Q-3 裁决：起运精确到生日同步）
@@ -380,8 +358,7 @@ def calc_liunian_ying_shi(current_year: int, day_wx: str, day_gan: str, bazi: Li
     dayun_gan_wx = GAN_WUXING.get(dayun_gan, '')
     dayun_zhi_wx = ZHI_WUXING.get(dayun_zhi, '')
     
-    sheng_me_map = {'金': '土', '木': '水', '水': '金', '火': '木', '土': '火'}
-    sheng_me = sheng_me_map[day_wx]
+    sheng_me = SHENG_ME_MAP[day_wx]
     
     # 判断大运干对日主的十神
     dayun_gan_ss = get_shishen(day_gan, dayun_gan)
@@ -458,11 +435,6 @@ def calc_liunian_ying_shi(current_year: int, day_wx: str, day_gan: str, bazi: Li
     
     # 7. Q-γ 流年对原局激活扫描
     # 亮哥专：2026丙午, 2027丁未, 2028戊申
-    LIUNIAN_TABLE = {
-        2024: ('甲', '辰'), 2025: ('乙', '巳'), 2026: ('丙', '午'),
-        2027: ('丁', '未'), 2028: ('戊', '申'), 2029: ('己', '酉'),
-        2030: ('庚', '戌'), 2031: ('辛', '亥'), 2032: ('壬', '子'),
-    }
     if current_year in LIUNIAN_TABLE:
         gan_ln, zhi_ln = LIUNIAN_TABLE[current_year]
         lines.append("")
@@ -474,36 +446,43 @@ def calc_liunian_ying_shi(current_year: int, day_wx: str, day_gan: str, bazi: Li
         else:
             lines.append(f"    ✅ 无直接引动，流年主要走【值/调候/通关】路径")
     
-    # 8. Q-β 2026 丙午流年现实取象（专家提供文本库）
-    if current_year == 2026:
-        lines.append("")
-        lines.append(f"  【Q-β 2026 丙午流年核心取象】（专家文本库）")
-        lines.append(f"    1. 【人事压力与权责博弈】：流年丙火（正官）与大运丁火（七杀）齐透，")
-        lines.append(f"       构成官杀混杂。人事关系复杂，“既要又要”的夹板气，")
-        lines.append(f"       或面临极具挑战性的外部公关/管理任务。")
-        lines.append(f"    2. 【调候大吉与精力破局】：流年午火+大运巳火=南方火局，")
-        lines.append(f"       原局“寒谷回春”。调候到位→精力、斗志被彻底激活。")
-        lines.append(f"       压力转化为业内名气与实际掌控力。")
-        lines.append(f"    3. 【平台换挡与后方变动】：午+巳联手合动丑土（印库=平台）。")
-        lines.append(f"       企业内部架构调整、阵营重新洗牌，或权责范围重大换挡。")
-        lines.append(f"       为 2027 戊午正印生身大运稳固新平台做铺垫。")
-    elif current_year == 2027:
-        lines.append("")
-        lines.append(f"  【Q-β 2027 丁未流年核心取象】（明凶实吉 · 专家 Q5 裁决）")
-        lines.append(f"    1. 【权责升级与新职任命】：戊午大运（正印生身），")
-        lines.append(f"       流年丁未七杀=新的挑战+官方任命/调位。")
-        lines.append(f"    2. 【丑戌未三刑引爆】：流年未补齐原局三刑，")
-        lines.append(f"       土旺=企业架构重组、岗位调整。")
-        lines.append(f"    3. 【杀印相生通关】：戊（印）化丁（杀），杀印相生→")
-        lines.append(f"       明凶实吉，动荡中大成。")
+    # 8. Q-β 2026/2027 流年现实取象（v1.6-refactor: 按家庭成员分支）
+    if family_member == '亮哥':
+        if current_year == 2026:
+            lines.append("")
+            lines.append(f"  【Q-β 2026 丙午流年核心取象】（亮哥专 · 专家文本库）")
+            lines.append(f"    1. 【人事压力与权责博弈】：流年丙火（正官）与大运丁火（七杀）齐透，")
+            lines.append(f"       构成官杀混杂。人事关系复杂，“既要又要”的夹板气，")
+            lines.append(f"       或面临极具挑战性的外部公关/管理任务。")
+            lines.append(f"    2. 【调候大吉与精力破局】：流年午火+大运巳火=南方火局，")
+            lines.append(f"       原局“寒谷回春”。调候到位→精力、斗志被彻底激活。")
+            lines.append(f"       压力转化为业内名气与实际掌控力。")
+            lines.append(f"    3. 【平台换挡与后方变动】：午+巳联手合动丑土（印库=平台）。")
+            lines.append(f"       企业内部架构调整、阵营重新洗牌，或权责范围重大换挡。")
+            lines.append(f"       为 2027 戊午正印生身大运稳固新平台做铺垫。")
+        elif current_year == 2027:
+            lines.append("")
+            lines.append(f"  【Q-β 2027 丁未流年核心取象】（明凶实吉 · 专家 Q5 裁决）")
+            lines.append(f"    1. 【权责升级与新职任命】：戊午大运（正印生身），")
+            lines.append(f"       流年丁未七杀=新的挑战+官方任命/调位。")
+            lines.append(f"    2. 【丑戌未三刑引爆】：流年未补齐原局三刑，")
+            lines.append(f"       土旺=企业架构重组、岗位调整。")
+            lines.append(f"    3. 【杀印相生通关】：戊（印）化丁（杀），杀印相生→")
+            lines.append(f"       明凶实吉，动荡中大成。")
+    else:
+        # 其他家庭成员：通用模板（v1.6-refactor：留给后续按 family_member 扩充）
+        if current_year in [2026, 2027]:
+            lines.append("")
+            lines.append(f"  【Q-β {current_year} 流年取象】（{family_member} · 通用模板）")
+            lines.append(f"    详尽文本库待补充。跳过大段专家文本，仅输出大运十神主调。")
     
     # 9. 输出“取象分类”类（不负责“现实具体事”）
     lines.append("")
     lines.append(f"  ⚠️  AI 输出仅为“大类取象”参考：")
-    lines.append(f"     亮哥 {current_year} 处于【{dayun['gan_zhi']}】大运，{dayun_gan_ss}主调。")
-    lines.append(f"     实际会发生什么（升职/跳槽/婚动/破财）取决于亮哥的【现实变量】：")
+    lines.append(f"     {family_member} {current_year} 处于【{dayun['gan_zhi']}】大运，{dayun_gan_ss}主调。")
+    lines.append(f"     实际会发生什么（升职/跳槽/婚动/破财）取决于该命主的【现实变量】：")
     lines.append(f"     公司平台、行业、岗位、领导风格、家庭状况等，不是命盘能完全决定的。")
-    lines.append(f"     AI 只能提供取象倾向，最终判断需亮哥按现实校准。")
+    lines.append(f"     AI 只能提供取象倾向，最终判断需命主按现实校准。")
     
     return '\n'.join(lines)
 
@@ -602,10 +581,9 @@ def calc_de_ling(day_wx: str, month_zhi: str) -> Tuple[int, str]:
     - 我泄月令：15分（如金泄于水，月令为食伤）
     """
     month_wx = ZHI_WUXING.get(month_zhi, '')
-    sheng_me_map = {'金': '土', '木': '水', '水': '金', '火': '木', '土': '火'}
     sheng_wo_map = {'金': '火', '木': '金', '水': '土', '火': '水', '土': '木'}  # 我生者
     wo_ke_map = {'金': '木', '木': '土', '水': '火', '火': '金', '土': '水'}  # 我克者
-    wo_sheng_map = sheng_me_map  # 生我者 = 我所生者的反向
+    wo_sheng_map = SHENG_ME_MAP  # 生我者 = 我所生者的反向
     
     if month_wx == day_wx:
         return 50, f"月令同五行（{month_wx}）── 当令"
@@ -658,8 +636,7 @@ def calc_de_shi(day_wx: str, force: Dict[str, float]) -> Tuple[int, str]:
     if total == 0:
         return 0, "力量为 0"
     pct = {k: v/total*100 for k, v in force.items()}
-    sheng_me_map = {'金': '土', '木': '水', '水': '金', '火': '木', '土': '火'}
-    sheng_me = sheng_me_map[day_wx]
+    sheng_me = SHENG_ME_MAP[day_wx]
     me_help = pct[day_wx] + pct[sheng_me]
     
     if me_help >= 50:
@@ -741,6 +718,22 @@ def calc_xie_hao(day_wx: str, force: Dict[str, float]) -> Tuple[int, str]:
 # 盛夏月：巳午未 → 火土燥极，需水
 EXTREME_COLD = ['亥', '子', '丑']  # 极寒月（需火调候）
 EXTREME_HOT = ['巳', '午', '未']    # 极热月（需水调候）
+
+# ==== v1.6-refactor: 五行生克映射（提取为模块常量，避免重复定义 4+ 次）====
+# 我生者（食伤）
+SHENG_WO_MAP = {'金': '金', '木': '火', '水': '木', '火': '土', '土': '金'}  # 复用 SHENG 即可，保留作 alias
+# 明确别名（防止有人误用 SHENG 以为是生我）
+SHENG_ME_MAP = {'金': '土', '木': '水', '水': '金', '火': '木', '土': '火'}  # 生我者（印）
+KE_ME_MAP = {'金': '木', '木': '土', '水': '火', '火': '金', '土': '水'}  # 我克者（财）
+KE_WO_MAP = {'金': '火', '木': '金', '水': '土', '火': '水', '土': '木'}  # 克我者（官杀）
+
+# ==== v1.6-refactor: 流年表提取为模块常量（避免文本/JSON 两个函数各自维护） ====
+LIUNIAN_TABLE = {
+    2024: ('甲', '辰'), 2025: ('乙', '巳'), 2026: ('丙', '午'),
+    2027: ('丁', '未'), 2028: ('戊', '申'), 2029: ('己', '酉'),
+    2030: ('庚', '戌'), 2031: ('辛', '亥'), 2032: ('壬', '子'),
+    2033: ('癸', '丑'), 2034: ('甲', '寅'), 2035: ('乙', '卯'),
+}
 
 # ==== 地支冲合刑害破常量（Q-γ 激活算法） ====
 # v1 已有 LIUHAI（6害）和 SANHE（3合），这里补 CHONG（6冲）、XING（3刑）、PO（6破）
@@ -878,7 +871,7 @@ def judge_xiji_v2(force: Dict[str, float], day_gan: str, day_wx: str, bazi: List
     di_score, di_descs = calc_de_di(day_gan, day_wx, bazi)
     
     # 3. 得势
-    shi_score, shi_desc = calc_de_shi(day_wx, day_wx, force) if False else calc_de_shi(day_wx, force)
+    shi_score, shi_desc = calc_de_shi(day_wx, force)
     
     # 4. 泄耗扣分
     xh_score, xh_desc = calc_xie_hao(day_wx, force)
@@ -926,8 +919,7 @@ def judge_xiji_v2(force: Dict[str, float], day_gan: str, day_wx: str, bazi: List
     else:
         scarce = []
     
-    sheng_me_map = {'金': '土', '木': '水', '水': '金', '火': '木', '土': '火'}
-    sheng_me = sheng_me_map[day_wx]
+    sheng_me = SHENG_ME_MAP[day_wx]
     
     return {
         'ling_score': ling_score,
@@ -1492,9 +1484,7 @@ def build_json_output(api_data: Dict, current_year, year, month, day, hour, minu
         base_ji = j['base_wuxing_ji']
         # 调候层高于基础层：调候用神必定是喜
         # 生调候用神的五行也列入喜
-        sheng_me_map = {'金': '土', '木': '水', '水': '金', '火': '木', '土': '火'}
-        ke_me_map = {'金': '火', '木': '金', '水': '土', '火': '水', '土': '木'}
-        sheng_tiao = sheng_me_map[tiao]  # 生火者木，生水者金
+        sheng_tiao = SHENG_ME_MAP[tiao]  # 生火者木，生水者金
         # 组合喜用：调候用神 + 生调候的五行 + 基础层已有的且不冲突的
         combined_xi = [tiao]
         if sheng_tiao not in combined_xi:
@@ -1504,7 +1494,7 @@ def build_json_output(api_data: Dict, current_year, year, month, day, hour, minu
                 combined_xi.append(wx)
         # 组合忌用：调候生己（克调候的五行）+ 基础层忌用中未出现在喜用的
         combined_ji = []
-        ke_tiao = ke_me_map[tiao]  # 克火者水，克水者土
+        ke_tiao = KE_WO_MAP[tiao]  # 克火者水，克水者土
         if ke_tiao not in combined_xi:
             combined_ji.append(ke_tiao)
         for wx in base_ji:
@@ -1530,11 +1520,7 @@ def build_json_output(api_data: Dict, current_year, year, month, day, hour, minu
         result['dayun_table'] = None
     
     if current_year:
-        # 流年激活扫描
-        LIUNIAN_TABLE = {
-            2024: ('甲', '辰'), 2025: ('乙', '巳'), 2026: ('丙', '午'),
-            2027: ('丁', '未'), 2028: ('戊', '申'), 2029: ('己', '酉'),
-        }
+        # 流年激活扫描（v1.6-refactor: 用模块级 LIUNIAN_TABLE）
         if current_year in LIUNIAN_TABLE:
             gan_ln, zhi_ln = LIUNIAN_TABLE[current_year]
             activations = check_liunian_activation(gan_ln, zhi_ln, bazi_for_calc)
