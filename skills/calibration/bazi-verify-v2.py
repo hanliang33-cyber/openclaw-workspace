@@ -48,7 +48,7 @@ except ImportError:
     V15_AVAILABLE = False
 
 # 复用 v1 的所有数据常量和函数
-exec(open('/home/node/.openclaw/workspace/skills/calibration/bazi-verify.py').read().split('def main()')[0])
+from bazi_common import *
 
 # ==== 起运年龄修正（专家 Q-1 裁决） ====
 # 子平传统手算：阳年男命顺排
@@ -944,6 +944,14 @@ def judge_xiji_v2(force: Dict[str, float], day_gan: str, day_wx: str, bazi: List
         'sheng_me': sheng_me,
         'scarce': scarce,
         'force_pct': {k: v/total_force*100 for k, v in force.items()} if total_force > 0 else {},
+        # v1.6-refactor: 基础层喜忌，供文本+JSON 统一使用
+        '_base_xi': (['火', '金', '木'] if is_strong else ['金', '土']),
+        '_base_ji': (['金', '土'] if is_strong else ['火', '金', '木']),
+        '_is_yang_year': (day_gan in ('甲', '丙', '戊', '庚', '壬')),  # 用于方向校验
+        '_day_gan': day_gan,
+        '_guan_sha_wx': KE_WO_MAP[day_wx],
+        '_shishen_wx': SHENG_WO_MAP[day_wx],
+        '_cai_wx': KE_ME_MAP[day_wx],
     }
 
 
@@ -1032,6 +1040,13 @@ def format_output_v2(api_data: Dict, current_year_gan: str = None, current_dayun
     lines.append("")
     lines.append("【喜忌判断】（v2 完整版：得令 + 得地 + 得势 - 泄耗 - 环境折减）")
     judgment = judge_xiji_v2(force, day_gan, day_wx, bazi)
+    # v1.5 P0 调整（v1.6-refactor: 文本输出也走 v15，与 JSON 一致）
+    if V15_ENABLED and V15_AVAILABLE:
+        judgment_v15 = adjust_xiji_with_v15(bazi, judgment, verbose=False)
+        if judgment_v15.get('v15_adjustment', '').startswith('v1.5'):
+            if judgment_v15.get('base_wuxing_xi'):
+                judgment['_base_xi'] = judgment_v15['base_wuxing_xi']
+            judgment['v15_p0_applied'] = True
     pct = judgment['force_pct']
     
     lines.append(f"  日主五行：{day_wx}，生我者为：{judgment['sheng_me']}")
@@ -1122,12 +1137,29 @@ def format_output_v2(api_data: Dict, current_year_gan: str = None, current_dayun
         else:
             lines.append(f"    ℹ️  调候{tiaohou_gan}={tiaohou_shi_shen} 与身强身弱喜神一致（常规调候加成）")
     
-    # v1.6-tiaohou-fix: 合并层最终结论
+    # v1.6-refactor: 喜忌合并（基础层 + 调候层）
+    _base_xi = judgment.get('_base_xi', [])
+    _base_ji = judgment.get('_base_ji', [])
     if judgment.get('tiaohou_priority'):
-        tiao_wx = judgment.get('tiaohou_yongshen', '?')
-        sheng_tiao = {'火': '木', '水': '金'}.get(tiao_wx, '?')
-        day_wx_name = day_wx
-        lines.append(f"    v1.6-tiaohou-fix: 调候层{tiao_wx}优先，最终喜用={tiao_wx}（调候）+{sheng_tiao}（生调候）")
+        _tiao_wx = judgment.get('tiaohou_yongshen', '')
+        _sheng_tiao = {'火': '木', '水': '金'}.get(_tiao_wx, '')
+        _combined_xi = [_tiao_wx, _sheng_tiao]
+        for w in _base_xi:
+            if w not in _combined_xi:
+                _combined_xi.append(w)
+        _combined_ji = []
+        _ke_tiao = KE_WO_MAP.get(_tiao_wx, '')
+        if _ke_tiao not in _combined_xi:
+            _combined_ji.append(_ke_tiao)
+        for w in _base_ji:
+            if w not in _combined_xi and w not in _combined_ji:
+                _combined_ji.append(w)
+        _combined_ji = [w for w in _combined_ji if w]
+    else:
+        _combined_xi = list(_base_xi)
+        _combined_ji = list(_base_ji)
+    # 存到 judgment 供 format_output 引用（已被 JSON 用一样的 base_xi/ji + 调候）
+    lines.append(f"    [v1.6-refactor 合并层完整喜忌]  喜用={'/'.join(_combined_xi)}  忌={'/'.join(_combined_ji)}")
     
     # 5. 调候用神（复用 v1）
     lines.append("")
